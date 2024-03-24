@@ -1,0 +1,20 @@
+- name: Deploy Docker Image
+  hosts: tag_Name_WebServer
+  become: true
+  gather_facts: no
+  # Deploy Docker image on the EC2 instance
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        update_cache: yes
+      # Install Docker on the EC2 instance
+
+    - name: Pull Docker Image
+      command: docker pull madhumitha92/mywebsite:latest
+      # Pull the Docker image from Docker Hub
+
+    - name: Run Docker Container
+      command: docker run -d -p 80:80 madhumitha92/mywebsite:latest
+      # Run the Docker container on port 80

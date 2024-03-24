@@ -1,0 +1,125 @@
+
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        # Ensuring code is checked out from the correct branch
+        ref: ${{ github.ref }}
+
+    - name: Install Docker
+      run: |
+        sudo apt-get update && sudo apt-get install -y docker.io
+        # Check if Docker installation was successful
+        if [ $? -ne 0 ]; then
+          echo "Failed to install Docker."
+          exit 1
+        fi
+
+    - name: Build Docker image
+      run: |
+        docker build -t mywebsite .
+        # Check if Docker image was built successfully
+        if [ $? -ne 0 ]; then
+          echo "Failed to build Docker image."
+          exit 1
+        fi
+
+    - name: Tag Docker image
+      run: |
+        docker tag mywebsite madhumitha92/mywebsite:latest
+        # Check if Docker image was tagged successfully
+        if [ $? -ne 0 ]; then
+          echo "Failed to tag Docker image."
+          exit 1
+        fi
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin && docker push madhumitha92/mywebsite:latest
+        # Check if Docker image was pushed successfully
+        if [ $? -ne 0 ]; then
+          echo "Failed to push Docker image to Docker Hub."
+          exit 1
+        fi
+      
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      #with:
+      #  terraform_version: 1.0.0
+      # Check if Terraform was installed successfully
+      if: success()
+
+    - name: Terraform Init
+      run: terraform init
+      # Check if Terraform initialization was successful
+        if [ $? -ne 0 ]; then
+          echo "Failed to initialize Terraform."
+          exit 1
+        fi
+    
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      # Check if Terraform apply was successful
+        if [ $? -ne 0 ]; then
+          echo "Failed to apply Terraform configuration."
+          exit 1
+        fi
+
+    - name: Install Ansible
+      run: sudo apt-get install ansible
+      # Check if Ansible was installed successfully
+        if [ $? -ne 0 ]; then
+          echo "Failed to install Ansible."
+          exit 1
+        fi
+
+    - name: Set up SSH key pair for Ansible
+      run: ssh-keygen -t rsa -b 4096 -C "ansible-key" -f ~/.ssh/ansible-key -N ""
+      # Check if SSH key pair for Ansible was generated successfully
+        if [ $? -ne 0 ]; then
+          echo "Failed to generate SSH key pair for Ansible."
+          exit 1
+        fi
+
+    - name: Add SSH key to agent
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+      # Check if SSH key was added to the agent successfully
+      if: success()
+
+    - name: Run Ansible playbook
+      run: ansible-playbook -i tag_Name_WebServer, deploy.yml
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: false
+      # No need for explicit error handling; Ansible will exit with non-zero status on error
+
+    # Documentation for each step
+    - name: Document steps
+      run: |
+        echo "Step 1: Checkout code - Check out the code from the repository"
+        echo "Step 2: Install Docker - Install Docker on the virtual machine"
+        echo "Step 3: Build Docker image - Build Docker image from the Dockerfile"
+        echo "Step 4: Tag Docker image - Tag the built Docker image"
+        echo "Step 5: Push Docker image to Docker Hub - Push Docker image to Docker Hub"
+        echo "Step 6: Install Terraform - Install Terraform on the virtual machine"
+        echo "Step 7: Terraform Init - Initialize Terraform configuration"
+        echo "Step 8: Terraform Apply - Apply Terraform configuration to provision resources"
+        echo "Step 9: Install Ansible - Install Ansible on the virtual machine"
+        echo "Step 10: Set up SSH key pair for Ansible - Generate SSH key pair for Ansible"
+        echo "Step 11: Add SSH key to agent - Add SSH key to SSH agent for Ansible"
+        echo "Step 12: Run Ansible playbook - Execute Ansible playbook to deploy Docker image"
+      # Always successful; documentation step does not affect the workflow outcome
+      if: always()
