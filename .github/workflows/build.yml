@@ -37,6 +37,8 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
+        with:
+           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         #with:
         #  terraform_version: 1.0.0
         if: success()
@@ -45,7 +47,15 @@ jobs:
         working-directory: terraform
         run: terraform init
         if: success()
+      
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
 
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: terraform plan -input=false
+      
       - name: Terraform Apply
         working-directory: terraform
         run: terraform apply -auto-approve
