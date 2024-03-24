@@ -42,10 +42,12 @@ jobs:
         if: success()
 
       - name: Terraform Init
+        working-directory: terraform
         run: terraform init
         if: success()
 
       - name: Terraform Apply
+        working-directory: terraform
         run: terraform apply -auto-approve
         if: success()
 
@@ -64,6 +66,7 @@ jobs:
         if: success()
 
       - name: Run Ansible playbook
+        working-directory: ansible  # Change the working directory to the Ansible directory
         run: ansible-playbook -i tag_Name_WebServer, deploy.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
