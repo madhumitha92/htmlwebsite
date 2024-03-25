@@ -75,17 +75,12 @@ jobs:
 
       - name: Set up SSH key pair for Ansible
         run: ssh-keygen -t rsa -b 4096 -C "ansible-key" -f ~/.ssh/ansible-key -N ""
-        if: success()
-
-      - name: Add SSH key to agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+        cp ~/.ssh/ansible-key $HOME/ansible-private-key.pem        
         if: success()
 
       - name: Run Ansible playbook
         working-directory: ansible  # Change the working directory to the Ansible directory
-        run: ansible-playbook -i tag_Name_WebServer, deploy.yml
+        run: ansible-playbook -i tag_Name_WebServer, deploy.yml --private-key=$HOME/ansible-private-key.pem
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
         # No need for explicit error handling; Ansible will exit with non-zero status on error
