@@ -24,10 +24,12 @@ resource "aws_instance" "web_server" {
     Name = "WebServer"
   }
   # Define an EC2 instance resource with the specified AMI, instance type, and tags
+  provisioner "local-exec" {
+    command = "echo ${aws_instance.web_server.public_ip} >> /etc/ansible/hosts"
+  }
 }
 
 output "public_ip" {
   value = aws_instance.web_server.public_ip
   # Output the public IP address of the EC2 instance
 }
-

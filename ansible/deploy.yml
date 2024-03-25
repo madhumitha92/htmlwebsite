@@ -1,5 +1,5 @@
 - name: Deploy Docker Image
-  hosts: WebServer
+  hosts: all
   become: true
   gather_facts: no
   # Deploy Docker image on the EC2 instance
