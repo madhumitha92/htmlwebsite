@@ -34,11 +34,17 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin && docker push madhumitha92/mywebsite:latest
         if: success()
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: "${{ secrets.TF_USER_AWS_KEY }}"
+           aws-secret-access-key: "${{ secrets.TF_USER_AWS_SECRET }}"
+           aws-region: us-west-1
+        if: success()
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         #with:
         #  terraform_version: 1.0.0
         if: success()
