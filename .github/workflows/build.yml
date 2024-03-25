@@ -74,8 +74,9 @@ jobs:
         if: success()
 
       - name: Set up SSH key pair for Ansible
-        run: ssh-keygen -t rsa -b 4096 -C "ansible-key" -f ~/.ssh/ansible-key -N ""
-        cp ~/.ssh/ansible-key $HOME/ansible-private-key.pem        
+        run: |
+          ssh-keygen -t rsa -b 4096 -C "ansible-key" -f ~/.ssh/ansible-key -N ""
+          cp ~/.ssh/ansible-key $HOME/ansible-private-key.pem        
         if: success()
 
       - name: Run Ansible playbook
