@@ -71,6 +71,8 @@ jobs:
        
       - name: Save EC2 public IP
         run: echo "::set-output name=ec2_public_ip::$(terraform output public_ip)"
+        ec2_public_ip=$(terraform output public_ip)
+        echo "EC2_PUBLIC_IP=$ec2_public_ip" >> $GITHUB_ENV
         working-directory: terraform
 
       - name: Install Ansible
@@ -85,7 +87,7 @@ jobs:
 
       - name: Run Ansible playbook
         working-directory: ansible  # Change the working directory to the Ansible directory
-        run: ansible-playbook -i "${{ steps['Save EC2 public IP'].outputs.ec2_public_ip }}", deploy.yml --private-key=$HOME/ansible-private-key.pem
+        run: ansible-playbook -i "${{ env.EC2_PUBLIC_IP }}", deploy.yml --private-key=$HOME/ansible-private-key.pem
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
         # No need for explicit error handling; Ansible will exit with non-zero status on error
