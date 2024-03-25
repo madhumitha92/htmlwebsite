@@ -44,7 +44,7 @@ jobs:
         if: success()
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         #with:
         #  terraform_version: 1.0.0
         if: success()
@@ -55,14 +55,14 @@ jobs:
         if: success()
       
       # Checks that all Terraform configuration files adhere to a canonical format
-      - name: Terraform Format
+      - name: Terraform Validate
         working-directory: terraform
-        run: terraform fmt -check
+        run: terraform validate
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -input=false
+        run: terraform plan
       
       - name: Terraform Apply
         working-directory: terraform
