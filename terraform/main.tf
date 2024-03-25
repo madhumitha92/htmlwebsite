@@ -11,11 +11,6 @@ provider "aws" {
   # Define AWS provider with the desired region
 }
 
-resource "aws_security_group" "sec_group" {
-  name   = "sec_group"
-  vpc_id = "vpc-3324nnrvdl"
-}
-
 data "aws_security_group" "testsg" {
   id = "sg-0903498cfe6b000fb"
 }
